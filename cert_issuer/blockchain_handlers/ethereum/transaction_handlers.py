@@ -45,6 +45,8 @@ class EthereumTransactionHandler(TransactionHandler):
     def ensure_balance(self):
         # testing etherscan api wrapper
         self.balance = self.connector.get_balance(self.issuing_address)
+        print("ISSUING ADDRESS IS ", self.issuing_address)
+        print("BALANCE IS ", self.balance)
 
         # for now transaction cost will be a constant: (25000 gas estimate times 20Gwei gasprice) from tx_utils
         # can later be calculated inside EthereumTransaction_creator

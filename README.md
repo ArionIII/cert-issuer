@@ -15,6 +15,7 @@ Cert-issuer v3 is _not_ backwards compatible and does not support Blockcerts v2 
 You may expect little to no maintenance to the v2 code at this point.
 
 ## Using a VC API compliant issuing server
+#COM : VC Api = Api that respects VC Data Model (defined by W3C)
 
 To run this in a server, use https://github.com/blockchain-certificates/cert-issuer-vc-api.
 
@@ -47,12 +48,20 @@ experimenting only.
 
    - Once you launch the docker container, you will make some changes using your personal issuing information. This flow mirrors what you would if you were issuing real certificates.
    - To avoid losing your work, you should create snapshots of your docker container. You can do this by running:
-
+#COM
+docker ps -l
+Affiche le dernier conteneur lancé.
+Tu récupères son CONTAINER ID.
+docker commit <container_id> my_cert_issuer
+Crée une nouvelle image Docker à partir de ton conteneur en cours.
+my_cert_issuer sera le nom de cette nouvelle image.
+Ainsi, toutes tes modifs (wallet créé, fichiers de config, certificats émis…) sont sauvegardées dans une image réutilisable.
      ```
      docker ps -l
      docker commit <container for your bc/cert-issuer> my_cert_issuer
      ```
-
+#COM docker run -it my_cert_issuer bash (bash = ouvre un terminal interactif avec)
+#COM "daemon" = programme qui tourne en arriere plan
 5. When you're ready to run:
 
    ```
@@ -70,6 +79,9 @@ experimenting only.
 standard certficate issuing process. Do not use these addresses or private keys for anything other than experimenting.
 
 Ensure your docker image is running and bitcoind process is started
+#COM : faut pointer vers le container dans /root/.bitcoin/bitcoin.conf (recup user et pass, et les passer au regtest)
+#COM : Attention à bien lancer bitcoind en mode regtest si c'est pour test
+
 
 1. Creating a wallet first with `bitcoin-cli createwallet “<wallet name>”`
 
@@ -286,6 +298,8 @@ usb_name = </Volumes/path-to-usb/>
 key_file = <file-you-saved-pk-to>
 
 unsigned_certificates_dir=<path-to-your-unsigned-certificates>
+#COM : Ceci est a generer via https://github.com/blockchain-certificates/cert-tools --> Permet de gerer des templates avec var pour generer des DID certificate 
+# eleaborés, en y referencant notre clé publique, et en ajoutant de la metadonnée.
 blockchain_certificates_dir=<path-to-your-blockchain-certificates>
 work_dir=<path-to-your-workdir>
 
@@ -293,6 +307,7 @@ no_safe_mode
 
 # advanced: uncomment the following line if you're running a bitcoin node
 # bitcoind
+#COM : Question : puisqu'un on a besoin du etherscan_api_token dans conf.ini, est-ce qu'on doit créer une clé d'API Etherscan a tous les clients ? 
 ```
 
 Notes:
@@ -301,7 +316,9 @@ Notes:
 - The Ethereum option does not support a local (test)node currently. The issuer will broadcast the transaction via the Etherscan API or an RPC of their choice.
 
 ## Working with DIDs
-
+#COM DID = identifiant normalisé par le W3C, pour identifier une entité
+#COM did:ion:EiA_Z6LQILbB2zj_eVrqfQ2xDm4HNqeJUw5Kj2Z7bFOOeQ --> did =prefixe commun. io = méthode (chaque blockchain a sa méthode), le reste = id unique
+#COM Ensuite on résout le DID, on obtient un JSON avec les infos
 To issue and verify a Blockcerts document bound to a DID you need to:
 
 - generate a DID document referencing the public key source of the issuing address. The verification supports all the DID methods from the [DIF universal resolver](https://uniresolver.io/), but it is recommended you provide your own resolver to the verification library.
@@ -332,6 +349,15 @@ To issue and verify a Blockcerts document bound to a DID you need to:
   ```
 
 You may try to see the full example DID document by looking up `did:ion:EiA_Z6LQILbB2zj_eVrqfQ2xDm4HNqeJUw5Kj2Z7bFOOeQ` in the [DIF universal resolver](https://uniresolver.io/).
+
+#COM : En gros quand une entité emet un certif via blockcerts --> elle doit indiquer qui est l'émetteur.
+# Avant : simple adresse btc/eth. Mtn : un DID (bcp + riche)
+# Le vérifieur lit le champ issuer, il résout le DID, il regarde dans verificationmethod : il y voit la clé publique du wallet et avec ca il peut vérifier le hash
+#Portabilité : un DID peut pointer vers une clé Bitcoin, Ethereum, ou autre → agnostique de la blockchain.
+#Interopérabilité : tous les systèmes compatibles DID peuvent le résoudre.
+#Richesse : on peut associer un profil d’émetteur, un endpoint, etc.
+#Décentralisation : pas besoin d’une autorité unique qui “délivre” les identifiants.
+--> SURTOUT, permet d'avoir metadata entre la clé publique du wallet et l'entité (université X/Y...)
 
 ## Multiple Signatures
 Blockcerts implements ChainedProof2021 draft proposal (https://hackmd.io/@RYgJMHAGSlaLMaQzwYjvsQ/SJoDWwTdK).
