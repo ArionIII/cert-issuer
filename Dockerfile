@@ -1,3 +1,4 @@
+ENV PATH="/.venv/bin:$PATH"
 FROM lncm/bitcoind:v27.2
 MAINTAINER Kim Duffy "kimhd@mit.edu"
 

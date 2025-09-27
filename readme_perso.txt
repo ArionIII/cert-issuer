@@ -39,6 +39,10 @@ Je stocke un volume de conteneur ici : C:\Users\rodgo\bitcoin_data (contient wal
 pour lancer un conteneur avec ce volume : docker run -it -v C:\Users\rodgo\bitcoin_data:/root/.bitcoin my_cert_issuer bash
 pour écraser a la fin d'une cession (save & ecrase) : docker cp <container_id>:/root/.bitcoin C:\Users\rodgo\bitcoin_data
 
+Pour créer des wallets, plus simplement :
+bitcoin-cli -regtest createwallet "mining_wallet" false false
+ADDR=$(bitcoin-cli -regtest -rpcwallet=mining_wallet getnewaddress)
+bitcoin-cli -regtest generatetoaddress 101 "$ADDR"
 
 Créer des certifs avec cert- (voir repo cert-tools)
 
