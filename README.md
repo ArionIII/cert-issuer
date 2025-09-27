@@ -82,7 +82,7 @@ Ensure your docker image is running and bitcoind process is started
 #COM : faut pointer vers le container dans /root/.bitcoin/bitcoin.conf (recup user et pass, et les passer au regtest)
 #COM : Attention à bien lancer bitcoind en mode regtest si c'est pour test
 
-
+#COM : Ne pas oublier le -regtest si on veut faire des tests sur la chain test btc
 1. Creating a wallet first with `bitcoin-cli createwallet “<wallet name>”`
 
    ```
@@ -97,6 +97,7 @@ Ensure your docker image is running and bitcoind process is started
 
    You can `bitcoin-cli listwallets` to check if your wallet is loaded
 
+#COM : VOIR LE README PERSO CAR CECI EST DEPRECIE
 3. Create an _issuing address_ and save the output as follows:
 
    ```
@@ -317,8 +318,8 @@ Notes:
 
 ## Working with DIDs
 #COM DID = identifiant normalisé par le W3C, pour identifier une entité
-#COM did:ion:EiA_Z6LQILbB2zj_eVrqfQ2xDm4HNqeJUw5Kj2Z7bFOOeQ --> did =prefixe commun. io = méthode (chaque blockchain a sa méthode), le reste = id unique
-#COM Ensuite on résout le DID, on obtient un JSON avec les infos
+ did:ion:EiA_Z6LQILbB2zj_eVrqfQ2xDm4HNqeJUw5Kj2Z7bFOOeQ --> did =prefixe commun. io = méthode (chaque blockchain a sa méthode), le reste = id unique
+ Ensuite on résout le DID, on obtient un JSON avec les infos
 To issue and verify a Blockcerts document bound to a DID you need to:
 
 - generate a DID document referencing the public key source of the issuing address. The verification supports all the DID methods from the [DIF universal resolver](https://uniresolver.io/), but it is recommended you provide your own resolver to the verification library.
