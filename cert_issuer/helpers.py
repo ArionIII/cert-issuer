@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 
-import glob2
+import glob
 from cert_core import Chain, UnknownChainError
 from pycoin.encoding.hexbytes import b2h, h2b
 
@@ -60,29 +60,37 @@ def prepare_issuance_batch(unsigned_certs_dir, signed_certs_dir, blockchain_cert
     blockchain_certs_work_dir = os.path.join(work_dir, BLOCKCHAIN_CERTIFICATES_DIR)
 
     # copy input certs to unsigned certs work subdir and create output subdirs
+    print(">>> before copy, files in unsigned_certs_dir:")
+    print(os.listdir(unsigned_certs_dir))
+    print(">>> copying from", unsigned_certs_dir, "to", unsigned_certs_work_dir)
     shutil.copytree(unsigned_certs_dir, unsigned_certs_work_dir)
+    print(">>> after copy, files in unsigned_certs_work_dir:")
+    print(os.listdir(unsigned_certs_work_dir))
     os.makedirs(signed_certs_work_dir, exist_ok=True)
     os.makedirs(blockchain_certs_work_dir, exist_ok=True)
 
     cert_info = collections.OrderedDict()
     input_file_pattern = str(os.path.join(unsigned_certs_work_dir, '*' + file_extension))
-
-    matches = glob2.iglob(input_file_pattern, with_matches=True)
-    if not matches:
+    print('input file pattern :', input_file_pattern)
+    files = glob.glob(input_file_pattern)
+    if not files:
         logging.warning('No certificates to process')
         raise NoCertificatesFoundError('No certificates to process')
 
     # create certificate metadata for each certificates
-    for filename, (uid,) in sorted(matches):
-        certificate_metadata = CertificateMetadata(uid=uid,
-                                                   unsigned_certs_dir=unsigned_certs_work_dir,
-                                                   signed_certs_dir=signed_certs_work_dir,
-                                                   blockcerts_dir=blockchain_certs_work_dir,
-                                                   final_blockcerts_dir=blockchain_certs_dir,
-                                                   file_extension=file_extension)
+    for filename in sorted(files):
+        uid = os.path.splitext(os.path.basename(filename))[0]
+        print("FILE:", filename, "UID:", uid)
+        certificate_metadata = CertificateMetadata(
+            uid=uid,
+            unsigned_certs_dir=unsigned_certs_work_dir,
+            signed_certs_dir=signed_certs_work_dir,
+            blockcerts_dir=blockchain_certs_work_dir,
+            final_blockcerts_dir=blockchain_certs_dir,
+            file_extension=file_extension
+        )
         cert_info[uid] = certificate_metadata
-
-    logging.info('Processing %d certificates', len(cert_info))
+    logging.info('Processed %d certificates', len(cert_info))
     return cert_info
 
 

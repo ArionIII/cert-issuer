@@ -132,6 +132,9 @@ class CertificateBatchHandler(BatchHandler):
         blockchain_certificates_dir = config.blockchain_certificates_dir
         work_dir = config.work_dir
 
+        print("DIRECTORIES")
+        print(unsigned_certs_dir)
+
         certificates_metadata = helpers.prepare_issuance_batch(
                 unsigned_certs_dir,
                 signed_certs_dir,
